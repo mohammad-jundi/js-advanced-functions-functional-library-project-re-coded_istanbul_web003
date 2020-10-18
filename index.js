@@ -39,13 +39,13 @@ const fi = (function () {
 
     filter: function (collection, predicate) {
       const arr = []
-      for (let i in collection){
+      for (let i in collection) {
         if (predicate(collection[i]) === true) {
           arr.push(collection[i])
         }
       }
       return arr
-  },
+    },
 
     size: function (collection) {
       return Object.keys(collection).length;
@@ -61,7 +61,7 @@ const fi = (function () {
 
     last: function (arr, i) {
       if (i === undefined) {
-        return arr[arr.length -1];
+        return arr[arr.length - 1];
       } else {
         return arr.slice(arr.length - i);
       }
@@ -83,16 +83,73 @@ const fi = (function () {
       });
     },
 
-    flatten: function (array, shallow) {
-
-  },
-
-  functions: function() {
-
+    flatten: function (input) {
+      const stack = [...input];
+      const res = [];
+      while(stack.length) {
+        const next = stack.pop();
+        if(Array.isArray(next)) {
+          // push back array items, won't modify the original input
+          stack.push(...next);
+        } else {
+          res.push(next);
+        }
+      }
+      // reverse to restore input order
+      return res.reverse();
     },
-
-
-}
-}) ()
+   flatten: function (input, shallow, r){
+      if (!r) { r = [] }
+      if (shallow) {
+        return r.concat(...input);
+      }
+      for (let i = 0; i < input.length; i++) {
+        if (input[i].constructor == Array) {
+          flatten(input[i], shallow, r);
+        }  else {
+          const stack = [...input];
+          const res = [];
+          while (stack.length) {
+            const next = stack.pop();
+            if (Array.isArray(next)) {
+              stack.push(...next);
+            } else {
+              res.push(next);
+            }
+          }
+          return res.reverse();
+        }
+      }
+      return r;
+    },
+    uniq: function (array, isSorted, callback){
+      let resultArr = [];
+      if (callback) {
+        let arr = [...array].map((element) => callback(element));
+        resultArr = array.filter(
+          (value, index, array) => arr.indexOf(callback(value)) === index
+        );
+      } else {
+        resultArr = [...new Set(array)];
+      }
+      return resultArr;
+    },
+    keys: function (obj){
+      return Object.keys(obj);
+    },
+    values: function(obj){
+      return Object.values(obj)
+    },
+    functions: function (fi) {
+      let results = []
+      for (let i in fi){
+        if (typeof fi[i] === "function"){
+           results.push(fi[i])
+        }
+      }
+      return results.sort()
+    },
+  }
+})()
 
 fi.libraryMethod()
